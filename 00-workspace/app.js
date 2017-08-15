@@ -23,3 +23,12 @@ var map = new ol.Map({
     zoom: 5
   })
 });
+
+// SETUP APPLICATION LOGIC HERE
+
+  var app = {
+    mapzenKey: 'mapzen-CpAANqF', // feel free to add your key if you want
+    activeSearch: 'from'
+  }
+
+  
