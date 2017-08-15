@@ -89,8 +89,7 @@ var app = {
     app.clearList();
     
     if(app.selection.from.hasOwnProperty('geometry') && app.selection.to.hasOwnProperty('geometry')){
-      app.queryMobility(function(err, data){
-        console.log(err, data)
+      app.queryMobility(app.displayRoute()
       });
     }
   },
@@ -128,13 +127,56 @@ var app = {
       $.ajax({
         url: 'https://valhalla.mapzen.com/route?json=' + JSON.stringify(json) + '&api_key=' + app.mapzenKey,
         success: function(data, status, req){
-          callback(null, data);
-        },
-        error: function(req, status, err){
-          callback(err);
-        }
+                var coords = polyline.decode(data.trip.legs[0].shape);
+                callback(null, coords);
+              },
+              error: function(req, status, err){
+                callback(err);
+              }
       })
+    },
+  
+  displayRoute: function(err, coords){
+    if(err){
+      // We're going to be pretty simple in our error handling for this workshop
+      console.log(err);
+    }else{
+      // Create a route GeoJSON object, now we can work with that
+      var route = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: coords
+        }
+      }
+
+      // Add our data as a vector source to app.routeLayer (see below for explanation)
+      app.routeLayer.setSource( new ol.source.Vector({
+        features: (new ol.format.GeoJSON({featureProjection: mapProjection})).readFeatures(route);
+      }))
+
+      // Zoom the map to the route layer
+      map.getView().fit(
+        app.routeLayer.getSource().getExtent(),
+        map.getSize()
+      )
     }
+  },
+  
+      routeLayer: new ol.layer.Vector({
+      map: map,
+      opacity: 0.6,
+      visible: true,
+      style: new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: '#2196F3',
+          width: 5
+        })
+      }),
+      source: new ol.source.Vector({
+        features: []
+      })
+   	 })
 
 }
 
