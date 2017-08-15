@@ -87,6 +87,12 @@ var app = {
     var elId = '#search-' + app.activeSearch + '-input';
     $(elId).val(feature.properties.label);
     app.clearList();
+    
+    if(app.selection.from.hasOwnProperty('geometry') && app.selection.to.hasOwnProperty('geometry')){
+      app.queryMobility(function(err, data){
+        console.log(err, data)
+      });
+    }
   },
 
   clearList: function(e){
