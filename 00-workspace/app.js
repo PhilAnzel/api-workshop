@@ -176,7 +176,8 @@ var app = {
       }),
       source: new ol.source.Vector({
         features: []
-      })
+      }),
+        
    	   renderDirectionsList: function(err){
     // grab references to the sidebar and directions list DOM elements so we can manipulate them
     var sidebar = $('#sidebar');
