@@ -39,8 +39,8 @@ var map = new ol.Map({
       app.queryAutocomplete(val, function(err, data){
         console.log(data);
       })
-    
-  },
+    }
+  }
     queryAutocomplete: throttle(function(text, callback){
       $.ajax({
         url: 'https://search.mapzen.com/v1/autocomplete?text=' + text + '&api_key=' + app.mapzenKey, 
