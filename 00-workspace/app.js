@@ -26,14 +26,14 @@ var map = new ol.Map({
 
 // SETUP APPLICATION LOGIC HERE
 
-  var app = {
-    mapzenKey: 'mapzen-CpAANqF', // feel free to add your key if you want
-    activeSearch: 'from',
-    options: [],
-    selection: {
-      from: {},
-      to: {}
-    },
+var app = {
+  mapzenKey: 'mapzen-CpAANqF', 
+  activeSearch: 'from',
+  options: [],
+  selection: {
+    from: {},
+    to: {}
+  },
 
   typeAhead: function(e){
     var el = e.target;
@@ -48,60 +48,61 @@ var map = new ol.Map({
       app.clearList();
     }
   },
-    queryAutocomplete: throttle(function(text, callback){
-      $.ajax({
-        url: 'https://search.mapzen.com/v1/autocomplete?text=' + text + '&api_key=' + app.mapzenKey, 
-        success: function(data, status, req){
-          callback(null, data);
-        },
-        error: function(req, status, err){
-          callback(err);
-        }
-      })
-    }, 150) ,
-    renderResultsList: function(){
-      // step 1
-      var resultsList = $('#results-list');
-      resultsList.empty();
 
-      // step 2
-  var results = app.options.map(function(feature){
-    var li = $('<li class="results-list-item">' + feature.properties.label + '</li>');
-    li.on('click', function(){
-      app.selectItem(feature);
-    })
-    return li;
-  })
-
-      // step 3
-      resultsList.append(results);
-
-      // step 4
-      if(app.options.length > 0){
-        resultsList.removeClass('hidden');
-      }else{
-        resultsList.addClass('hidden');
+  queryAutocomplete: throttle(function(text, callback){
+    $.ajax({
+      url: 'https://search.mapzen.com/v1/autocomplete?text=' + text + '&api_key=' + app.mapzenKey, 
+      success: function(data, status, req){
+        callback(null, data);
+      },
+      error: function(req, status, err){
+        callback(err)
       }
-  	},
-    
-    selectItem: function(feature){
-      // step 1
-      app.selection[app.activeSearch] = feature;
+    })
+  }, 150),
 
-      // step 2
-      var elId = '#search-' + app.activeSearch + '-input';
-      $(elId).val(feature.properties.label);
+  renderResultsList: function(){
+    var resultsList = $('#results-list');
+    resultsList.empty();
 
-      // step 3
-      app.clearList();
-    },
-    
-    clearList: function(e){
-      app.options = [];
-      app.renderResultsList();
-    }    
-    
-    
+    var results = app.options.map(function(feature){
+      var li = $('<li class="results-list-item">' + feature.properties.label + '</li>');
+      li.on('click', function(){
+        app.selectItem(feature);
+      })
+      return li;
+    })
+
+    resultsList.append(results);
+
+    if(app.options.length > 0){
+      resultsList.removeClass('hidden');
+    }else{
+      resultsList.addClass('hidden');
+    }
+  },
+
+  selectItem: function(feature){
+    app.selection[app.activeSearch] = feature;
+    var elId = '#search-' + app.activeSearch + '-input';
+    $(elId).val(feature.properties.label);
+    app.clearList();
+  },
+
+  clearList: function(e){
+    app.options = [];
+    app.renderResultsList();
+  },
+
+  clearSearch: function(e){
+    var elId = '#search-' + e.data.input + '-input';
+    $(elId).val('').trigger('keyup');
+    app.selection[e.data.input] = {};
   }
 
-   $('#search-from-input').on('keyup', {input:'from'}, app.typeAhead);
+}
+
+// SETUP EVENT BINDING HERE
+
+$('#search-from-input').on('keyup', {input:'from'}, app.typeAhead);
+$('#clear-from-search').on('click', {input:'from'}, app.clearSearch);
