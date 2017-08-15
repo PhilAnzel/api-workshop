@@ -34,6 +34,20 @@ var app = {
     from: {},
     to: {}
   },
+  routeLayer: new ol.layer.Vector({
+    map: map,
+    opacity: 0.6,
+    visible: true,
+    style: new ol.style.Style({
+      stroke: new ol.style.Stroke({
+        color: '#2196F3',
+        width: 5
+      })
+    }),
+    source: new ol.source.Vector({
+      features: []
+    })
+  }),
 
   typeAhead: function(e){
     var el = e.target;
@@ -90,7 +104,7 @@ var app = {
     if(app.selection.from.hasOwnProperty('geometry') && app.selection.to.hasOwnProperty('geometry')){
       app.queryMobility(app.displayRoute);
     }
-  }, 
+  },
 
   clearList: function(e){
     app.options = [];
@@ -105,41 +119,40 @@ var app = {
     $(elId).val('').trigger('keyup');
     app.selection[e.data.input] = {};
   },
-  
+
   queryMobility: function(callback){
-      var json = {
-        locations:[
-          {
-            lat:app.selection.from.geometry.coordinates[1],
-            lon:app.selection.from.geometry.coordinates[0],
-            type:'break'
-          },
-          {
-            lat:app.selection.to.geometry.coordinates[1],
-            lon:app.selection.to.geometry.coordinates[0],
-            type:'break'
-          }
-        ],
-        costing:'auto',
-        directions_options:{
-          units:'miles'
-        }
-      };
-      $.ajax({
-        url: 'https://valhalla.mapzen.com/route?json=' + JSON.stringify(json) + '&api_key=' + app.mapzenKey,
-        success: function(data, status, req){
-                app.trip = data.trip;
-                var coords = polyline.decode(data.trip.legs[0].shape);
-                callback(null, coords);
+    var json = {
+      locations:[
+        {
+          lat:app.selection.from.geometry.coordinates[1],
+          lon:app.selection.from.geometry.coordinates[0],
+          type:'break'
         },
-        error: function(req, status, err){
-          callback(err);
+        {
+          lat:app.selection.to.geometry.coordinates[1],
+          lon:app.selection.to.geometry.coordinates[0],
+          type:'break'
         }
-      })
-    },
-  
+      ],
+      costing:'auto',
+      directions_options:{
+        units:'miles'
+      }
+    }
+    $.ajax({
+      url: 'https://valhalla.mapzen.com/route?json=' + JSON.stringify(json) + '&api_key=' + app.mapzenKey,
+      success: function(data, status, req){
+        app.trip = data.trip;
+        var coords = polyline.decode(data.trip.legs[0].shape);
+        callback(null, coords);
+      },
+      error: function(req, status, err){
+        callback(err);
+      }
+    })
+  },
+
   displayRoute: function(err, coords){
-    console.log('should be working')
     if(err){
       console.log(err);
     }else{
@@ -163,75 +176,32 @@ var app = {
       app.renderDirectionsList();
     }
   },
-  
-      routeLayer: new ol.layer.Vector({
-      map: map,
-      opacity: 0.6,
-      visible: true,
-      style: new ol.style.Style({
-        stroke: new ol.style.Stroke({
-          color: '#2196F3',
-          width: 5
-        })
-      }),
-      source: new ol.source.Vector({
-        features: []
-      }),
-        
-   	   renderDirectionsList: function(err){
-    // grab references to the sidebar and directions list DOM elements so we can manipulate them
+
+  renderDirectionsList: function(err){
     var sidebar = $('#sidebar');
     var directionsList = $('#directions-list');
-
-    // empty the directions list in case it already had information inside it
     directionsList.empty();
-    
-    // make sure that we actually have data on the trip object in app
     if(app.trip && app.trip.legs){
-      
-      // use the array.map method to iterate through all maneuvers 
-      // in the first leg and add the results to an array called directions
       var directions = app.trip.legs[0].maneuvers.map(function(man){
-        
-        // create our list item element
         var li = $('<li class="directions-list-item"></li>');
-        
-        // create a container for the instructions to go in
         var instructionContainer = $('<div class="directions-list-instruction-container"></div>');
-
-        // create the actual instruction element with our text from the maneuver
         var instruction = $('<div class="directions-list-item-direction">' + man.instruction + '</div>');
-
-        // append the instruction into the instruction container
         instructionContainer.append(instruction);
-
-        // if our maneuver has the verbal post transition instruction let's add that as a little subtext
-        if(dir.hasOwnProperty('verbal_post_transition_instruction')){
+        if(man.hasOwnProperty('verbal_post_transition_instruction')){
           var then = $('<div class="directions-then">Then ' + man.verbal_post_transition_instruction + '</div>')
           instructionContainer.append(then)
         }
-
-        // ready to add the instruction container to the list item
         li.append(instructionContainer);
-
-        // return the list item to become part of the directions array of DOM elements
         return li;
       })
-
-      // add the directions array of elements to the directions list
       directionsList.append(directions);
-
-      // show the list
       directionsList.removeClass('hidden');
-
-      // add the expanded class to sidebar, it just makes it almost full-page-height
       sidebar.addClass('sidebar-expanded');
     }else{
-      // if we don't have any directions hide the list and remove the expanded class
       directionsList.addClass('hidden');
       sidebar.removeClass('sidebar-expanded');
     }
-  }}),
+  }
 
 }
 
