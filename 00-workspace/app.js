@@ -85,16 +85,16 @@ var map = new ol.Map({
   	},
     
     selectItem: function(feature){
-    // step 1
-    app.selection[this.activeSearch] = feature;
+      // step 1
+      app.selection[app.activeSearch] = feature;
 
-    // step 2
-    var elId = '#search-' + app.activeSearch + '-input';
-    $(elId).val(feature.properties.label);
+      // step 2
+      var elId = '#search-' + app.activeSearch + '-input';
+      $(elId).val(feature.properties.label);
 
-    // step 3
-    app.clearList();
-  }
+      // step 3
+      app.clearList();
+    }
     
   }
 
