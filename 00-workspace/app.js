@@ -30,6 +30,10 @@ var map = new ol.Map({
     mapzenKey: 'mapzen-CpAANqF', // feel free to add your key if you want
     activeSearch: 'from',
     options: [],
+    selection: {
+      from: {},
+      to: {}
+    },
 
   typeAhead: function(e){
     var el = e.target;
@@ -61,10 +65,13 @@ var map = new ol.Map({
       resultsList.empty();
 
       // step 2
-      var results = app.options.map(function(feature){
-        var li = $('<li class="results-list-item">' + feature.properties.label + '</li>');
-        return li;
-      })
+  var results = app.options.map(function(feature){
+    var li = $('<li class="results-list-item">' + feature.properties.label + '</li>');
+    li.on('click', function(){
+      app.selectItem(feature);
+    })
+    return li;
+  })
 
       // step 3
       resultsList.append(results);
@@ -75,7 +82,19 @@ var map = new ol.Map({
       }else{
         resultsList.addClass('hidden');
       }
-  	}
+  	},
+    
+    selectItem: function(feature){
+    // step 1
+    app.selection[this.activeSearch] = feature;
+
+    // step 2
+    var elId = '#search-' + app.activeSearch + '-input';
+    $(elId).val(feature.properties.label);
+
+    // step 3
+    app.clearList();
+  }
     
   }
 
