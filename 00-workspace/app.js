@@ -152,7 +152,7 @@ var app = {
 
       // Add our data as a vector source to app.routeLayer (see below for explanation)
       app.routeLayer.setSource( new ol.source.Vector({
-        features: (new ol.format.GeoJSON({featureProjection: mapProjection})).readFeatures(route);
+        features: (new ol.format.GeoJSON({featureProjection: mapProjection})).readFeatures(route)
       }))
 
       // Zoom the map to the route layer
