@@ -34,13 +34,16 @@ var map = new ol.Map({
   typeAhead: function(e){
     var el = e.target;
     var val = el.value;
-    
     if(val.length > 2){
       app.queryAutocomplete(val, function(err, data){
-        console.log(data);
+        if(err) return console.log(err);
+        if(data.features) app.options = data.features;
+        app.renderResultsList();
       })
+    }else{
+      app.clearList();
     }
-  }
+  },
     queryAutocomplete: throttle(function(text, callback){
       $.ajax({
         url: 'https://search.mapzen.com/v1/autocomplete?text=' + text + '&api_key=' + app.mapzenKey, 
