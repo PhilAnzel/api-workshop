@@ -29,16 +29,18 @@ var map = new ol.Map({
   var app = {
     mapzenKey: 'mapzen-CpAANqF', // feel free to add your key if you want
     activeSearch: 'from',
+    options: [],
 
-    typeAhead: function(e){
-      var el = e.target;
-      var val = el.value;
-      if (val.length > 2 ) {
-		app.queryAutocomplete(val, function(err, data){
-      		console.log(data);
-	    }),
-	  }
-    },
+  typeAhead: function(e){
+    var el = e.target;
+    var val = el.value;
+    
+    if(val.length > 2){
+      app.queryAutocomplete(val, function(err, data){
+        console.log(data);
+      })
+    }
+  },
     queryAutocomplete: throttle(function(text, callback){
       $.ajax({
         url: 'https://search.mapzen.com/v1/autocomplete?text=' + text + '&api_key=' + app.mapzenKey, 
@@ -49,7 +51,29 @@ var map = new ol.Map({
           callback(err);
         }
       })
-    }, 150)    
+    }, 150) ,
+    renderResultsList: function(){
+      // step 1
+      var resultsList = $('#results-list');
+      resultsList.empty();
+
+      // step 2
+      var results = app.options.map(function(feature){
+        var li = $('<li class="results-list-item">' + feature.properties.label + '</li>');
+        return li;
+      })
+
+      // step 3
+      resultsList.append(results);
+
+      // step 4
+      if(app.options.length > 0){
+        resultsList.removeClass('hidden');
+      }else{
+        resultsList.addClass('hidden');
+      }
+  	}
+    
   }
 
    $('#search-from-input').on('keyup', {input:'from'}, app.typeAhead);
