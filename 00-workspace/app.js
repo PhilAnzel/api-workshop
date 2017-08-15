@@ -39,7 +39,7 @@ var map = new ol.Map({
       app.queryAutocomplete(val, function(err, data){
         console.log(data);
       })
-    }
+    
   },
     queryAutocomplete: throttle(function(text, callback){
       $.ajax({
