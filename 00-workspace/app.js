@@ -41,7 +41,7 @@ var map = new ol.Map({
         app.renderResultsList();
       })
     }else{
-      app.clearList();
+      //app.clearList();
     }
   },
     queryAutocomplete: throttle(function(text, callback){
