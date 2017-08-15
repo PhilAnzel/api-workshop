@@ -28,7 +28,13 @@ var map = new ol.Map({
 
   var app = {
     mapzenKey: 'mapzen-CpAANqF', // feel free to add your key if you want
-    activeSearch: 'from'
+    activeSearch: 'from',
+
+    typeAhead: function(e){
+      var el = e.target;
+      var val = el.value;
+      console.log(val);
+    }
   }
 
-  
+   $('#search-from-input').on('keyup', {input:'from'}, app.typeAhead);
